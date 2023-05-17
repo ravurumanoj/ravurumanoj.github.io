@@ -1,1 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Drag and Drop Boxes</title>
+  <style>
+    .box {
+      width: 100px;
+      height: 100px;
+      margin: 5px;
+      text-align:center;
+      font-size: 30px;
+      display: inline-block;
+    }
+   
+    .box1 { background-color: red; }
+    .box2 { background-color: blue; }
+    .box3 { background-color: green; }
+    .box4 { background-color: yellow; }
+    .box5 { background-color: orange; }
+    .box6 { background-color: purple; }
+    .box7 { background-color: cyan; }
+    .box8 { background-color: pink; }
+    .box9 { background-color: brown; }
+  </style>
+  <script>
+    var previousState = [];
+    function allowDrop(event) {
+      event.preventDefault();
+    }
 
+    function drag(event) {
+      event.dataTransfer.setData("text/plain", event.target.id);
+    }
+
+    function drop(event) {
+      event.preventDefault();
+      var sourceId = event.dataTransfer.getData("text/plain");
+      var sourceElement = document.getElementById(sourceId);
+      var targetElement = event.target;
+
+
+      previousState.push({
+        id: sourceId,
+        className: sourceElement.className,
+        text: sourceElement.innerText
+      });
+
+      var tempClass = targetElement.className;
+      var tempText = targetElement.innerText;
+      targetElement.className = sourceElement.className;
+      targetElement.innerText = sourceElement.innerText;
+      sourceElement.className = tempClass;
+      sourceElement.innerText = tempText;
+
+      previousState.push({
+        sourceElement: sourceElement,
+        targetElement: targetElement,
+        targetClass: targetElement.className,
+        targetText: targetElement.innerText,
+        sourceClass: sourceElement.className,
+        sourceText: sourceElement.innerText
+      });
+      
+    }
+    
+    function undo(event) {
+    	if (previousState.length > 0) {
+        var prevState = previousState.pop();
+        var sourceElement = prevState.sourceElement;
+        var targetElement = prevState.targetElement;
+        targetElement.className = prevState.sourceClass;
+        targetElement.innerText = prevState.sourceText;
+        sourceElement.className = prevState.targetClass;
+        sourceElement.innerText = prevState.targetText;
+        }
+    }
+  </script>
+</head>
+<body>
+  <table>
+    <tr>
+      <td>
+        <div id="box1" class="box box1" draggable="true" ondragstart="drag(event)" ondrop="drop(event)" ondragover="allowDrop(event)">100</div>
+      </td>
+      <td>
+        <div id="box2" class="box box2" draggable="true" ondragstart="drag(event)" ondrop="drop(event)" ondragover="allowDrop(event)">200</div>
+      </td>
+      <td>
+        <div id="box3" class="box box3" draggable="true" ondragstart="drag(event)" ondrop="drop(event)" ondragover="allowDrop(event)">300</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div id="box4" class="box box4" draggable="true" ondragstart="drag(event)" ondrop="drop(event)" ondragover="allowDrop(event)">400</div>
+      </td>
+      <td>
+        <div id="box5" class="box box5" draggable="true" ondragstart="drag(event)" ondrop="drop(event)" ondragover="allowDrop(event)">500</div>
+      </td>
+      <td>
+        <div id="box6" class="box box6" draggable="true" ondragstart="drag(event)" ondrop="drop(event)" ondragover="allowDrop(event)">600</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div id="box7" class="box box7" draggable="true" ondragstart="drag(event)" ondrop="drop(event)" ondragover="allowDrop(event)">700</div>
+      </td>
+      <td>
+        <div id="box8" class="box box8" draggable="true" ondragstart="drag(event)" ondrop="drop(event)" ondragover="allowDrop(event)">800</div>
+      </td>
+      <td>
+        <div id="box9" class="box box9" draggable="true" ondragstart="drag(event)" ondrop="drop(event)" ondragover="allowDrop(event)">900</div>
+      </td>
+    </tr>
+    </table>
+    <button onclick="undo()">Undo</button>
+    </body>
+</html>
