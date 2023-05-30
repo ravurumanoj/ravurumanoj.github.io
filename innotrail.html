@@ -7,11 +7,11 @@
       width: 100px;
       height: 100px;
       margin: 5px;
-      text-align:center;
+      text-align: center;
       font-size: 30px;
       display: inline-block;
     }
-   
+
     .box1 { background-color: red; }
     .box2 { background-color: blue; }
     .box3 { background-color: green; }
@@ -24,6 +24,7 @@
   </style>
   <script>
     var previousState = [];
+
     function allowDrop(event) {
       event.preventDefault();
     }
@@ -38,46 +39,86 @@
       var sourceElement = document.getElementById(sourceId);
       var targetElement = event.target;
 
-
       previousState.push({
         id: sourceId,
         className: sourceElement.className,
-        text: sourceElement.innerText
+        text: sourceElement.innerText,
+        color: getComputedStyle(sourceElement).backgroundColor // Store the computed color of the source box
       });
 
       var tempClass = targetElement.className;
       var tempText = targetElement.innerText;
+      var tempColor = getComputedStyle(targetElement).backgroundColor; // Store the computed color of the target box
+
       targetElement.className = sourceElement.className;
       targetElement.innerText = sourceElement.innerText;
+      targetElement.style.backgroundColor = getComputedStyle(sourceElement).backgroundColor; // Set the color of the target box to the dragged box
+
       sourceElement.className = tempClass;
       sourceElement.innerText = tempText;
+      sourceElement.style.backgroundColor = tempColor; // Set the color of the dragged box to the original target box color
 
       previousState.push({
         sourceElement: sourceElement,
         targetElement: targetElement,
         targetClass: targetElement.className,
         targetText: targetElement.innerText,
+        targetColor: getComputedStyle(targetElement).backgroundColor, // Store the computed color of the target box after swapping
         sourceClass: sourceElement.className,
-        sourceText: sourceElement.innerText
+        sourceText: sourceElement.innerText,
+        sourceColor: getComputedStyle(sourceElement).backgroundColor // Store the computed color of the dragged box after swapping
       });
-      
     }
-    
+
     function undo(event) {
-    	if (previousState.length > 0) {
+      if (previousState.length > 0) {
         var prevState = previousState.pop();
         var sourceElement = prevState.sourceElement;
         var targetElement = prevState.targetElement;
         targetElement.className = prevState.sourceClass;
         targetElement.innerText = prevState.sourceText;
+        targetElement.style.backgroundColor = prevState.sourceColor;
         sourceElement.className = prevState.targetClass;
         sourceElement.innerText = prevState.targetText;
-        }
+        sourceElement.style.backgroundColor = prevState.targetColor;
+      }
+    }
+
+    function getRandomColor() {
+      var letters = "0123456789ABCDEF";
+      var color = "#";
+      for (var i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+      }
+      return color;
+    }
+
+    function addRow() {
+      var table = document.getElementById("myTable");
+      var newRow = document.createElement("tr");
+
+      for (var i = 0; i < 3; i++) {
+        var cell = document.createElement("td");
+        var box = document.createElement("div");
+        var boxId = "box" + (table.rows.length * 3 + i + 1);
+        box.id = boxId;
+        box.className = "box " + boxId;
+        box.draggable = true;
+        box.ondragstart = drag;
+        box.ondrop = drop;
+        box.ondragover = allowDrop;
+        box.innerText = (table.rows.length * 3 + i + 1) * 100;
+        box.style.backgroundColor = getRandomColor(); // Set random background color
+        cell.appendChild(box);
+        newRow.appendChild(cell);
+      }
+
+      table.appendChild(newRow);
     }
   </script>
 </head>
 <body>
-  <table>
+  <table id="myTable">
     <tr>
       <td>
         <div id="box1" class="box box1" draggable="true" ondragstart="drag(event)" ondrop="drop(event)" ondragover="allowDrop(event)">100</div>
@@ -111,7 +152,8 @@
         <div id="box9" class="box box9" draggable="true" ondragstart="drag(event)" ondrop="drop(event)" ondragover="allowDrop(event)">900</div>
       </td>
     </tr>
-    </table>
-    <button onclick="undo()">Undo</button>
-    </body>
+  </table>
+  <button onclick="undo()">Undo</button>
+  <button onclick="addRow()">Add Row</button>
+</body>
 </html>
